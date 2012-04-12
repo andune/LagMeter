@@ -25,6 +25,7 @@ public class LagMeterPoller implements Runnable {
 		if (timeSpent == 0){
 			timeSpent = 1;
 		}
+		@SuppressWarnings("static-access")
 		float tps = plugin.interval / timeSpent;
 		plugin.ticksPerSecond = tps;
 		plugin.history.add(tps);

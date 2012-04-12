@@ -1,0 +1,8 @@
+useAverage: true
+averageLength: 10
+interval: 40
+log:
+    interval: 150
+    enable: true
+    useLogsFolder: true
+    logPlayersOnline: true

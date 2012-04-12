@@ -8,11 +8,8 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
 public class LagMeterLogger {
-	LagMeter plugin;
+	static LagMeter plugin;
 	
 	private String error = "*shrug* Dunno.";
 	private boolean logMemory = true;
@@ -20,8 +17,6 @@ public class LagMeterLogger {
 	protected static boolean enabled = false;
 	private String timeFormat = "MM-dd-yyyy HH:mm:ss";
 	
-	Player[] playersOnline = Bukkit.getServer().getOnlinePlayers();
-
 	String datafolder = "LagMeter";
 	File logfile;
 	PrintWriter log;
@@ -43,13 +38,18 @@ public class LagMeterLogger {
 		return beginLogging();
 	}
 	public boolean enable(){
-		return this.enable(new File(plugin.getDataFolder(),"lag.log"));
+		if(!LagMeter.useLogsFolder){
+			System.out.println("[LagMeter] Not using logs folder.");
+			return this.enable(new File(plugin.getDataFolder(),"lag.log"));
+		}else{
+			System.out.println("[LagMeter] Using logs folder. This will create a new log for each day (it might log data from tomorrow in today's file if you leave the server running without reloading/restarting).");
+			return this.enable(new File(plugin.getDataFolder()+"\\logs", "lag"+today()+".log"));
+		}
 	}
 	public boolean enabled(){
 		return enabled;
 	}
 	public void disable() throws IOException, FileNotFoundException, Exception {
-//		LagMeter.loadConfig();
 		if(LagMeter.enableLogging = true) {
 				closeLog();
 		}
@@ -60,13 +60,13 @@ public class LagMeterLogger {
 			try {
 				this.disable();
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
+				// TODO Log exception
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				// TODO Log exception
 				e.printStackTrace();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
+				// TODO Log exception
 				e.printStackTrace();
 			}
 			this.error("Both log outputs disabled:  Logging disabled.");
@@ -81,13 +81,13 @@ public class LagMeterLogger {
 			try {
 				this.disable();
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
+				// TODO Log exception
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				// TODO Log exception
 				e.printStackTrace();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
+				// TODO Log exception
 				e.printStackTrace();
 			}
 			this.error("Both log outputs disabled:  Logging disabled.");
@@ -150,7 +150,7 @@ public class LagMeterLogger {
 			Exception,
 			FileNotFoundException
 	{
-		if(enabled != false){
+		if(enabled = true){
 			log.flush();
 			log.close();
 			log = null;
@@ -158,13 +158,13 @@ public class LagMeterLogger {
 		}
 	}
 	protected void log(String message){
-		if (enabled && LagMeter.playerLoggingEnabled != false){
+		if (enabled && LagMeter.playerLoggingEnabled){
 				message = "["+now()+"] "+message;
 				log.println(message);
-				log.println("Players online: " + playersOnline.length);
+				log.println("Players online: " +(plugin.getServer().getOnlinePlayers().length));
 				log.flush();
 		}
-		else if(enabled && LagMeter.playerLoggingEnabled != true){
+		else if(enabled && !LagMeter.playerLoggingEnabled){
 		  message = "["+now()+"] "+message;
 		  log.println(message);
 		  log.flush();
@@ -176,5 +176,11 @@ public class LagMeterLogger {
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat(timeFormat);
 		return sdf.format(cal.getTime());
+	}
+	
+	public String today(){
+		Calendar calendar = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+		return sdf.format(calendar.getTime());
 	}
 }

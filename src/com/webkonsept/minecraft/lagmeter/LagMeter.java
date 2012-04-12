@@ -12,19 +12,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
 
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
-@SuppressWarnings("deprecation")
 public class LagMeter extends JavaPlugin {
 	private Logger log = Logger.getLogger("Minecraft");
 	protected float ticksPerSecond = 20;
+	public static PluginDescriptionFile pdfFile;
+	protected File logsFolder = new File(this.getDataFolder()+"\\logs");
 	
 	protected LagMeterLogger logger = new LagMeterLogger(this);
 	protected LagMeterPoller poller = new LagMeterPoller(this);
-	protected int averageLength = 10;
+	protected static int averageLength = 10;
 	protected LagMeterStack history = new LagMeterStack();
 	
 	protected boolean crapPermissions = false;
@@ -36,17 +36,17 @@ public class LagMeter extends JavaPlugin {
 	double percentageFree = ( 100 / memMax) * memFree;
 	
 	//Configurable
-	protected int interval = 40;
-	protected boolean useAverage = true;
-	protected static boolean enableLogging = true;
-	protected int logInterval = 150;
+	protected static int interval = 40;
+	protected static boolean useAverage = true, enableLogging = true, useLogsFolder = true;
+	protected static int logInterval = 150;
 	protected static boolean playerLoggingEnabled;
 	PluginDescriptionFile pdf;
+	LagMeter plugin;
 	
 	@Override
 	public void onDisable() {
 		this.out("Disabled!");
-		if(LagMeterLogger.enabled != true){
+		if(LagMeterLogger.enabled != false){
 			try {
 				logger.disable();
 			} catch (FileNotFoundException e) {
@@ -59,15 +59,21 @@ public class LagMeter extends JavaPlugin {
 				// TODO Log exception
 				e.printStackTrace();
 			}
-		}else{
-			this.out("Log already disabled in configuration.");
 		}
 		getServer().getScheduler().cancelTasks(this);
 	}
 
 	@Override
 	public void onEnable() {
-		loadConfig();
+		LagMeterConfig.loadConfig();
+		if(!logsFolder.exists() && useLogsFolder && enableLogging){
+			out("Logs folder not found. Creating one for you.");
+			logsFolder.mkdir();
+			if(!logsFolder.exists())
+				out("Error! Couldn't create the folder!");
+			else if (logsFolder.exists())
+				out("Logs folder created.");
+		}
 		if (enableLogging){
 			if (!logger.enable()){
 				this.crap("Logging is disabled because: "+logger.getError());
@@ -143,11 +149,6 @@ public class LagMeter extends JavaPlugin {
 			sender.sendMessage(ChatColor.GOLD + "Sorry, permission lagmeter.command." + command.getName().toLowerCase() + " was denied.");
 		}
 		return success;
-	}
-	public float getTPS() {
-		if (useAverage)
-			return history.getAverage();
-		return ticksPerSecond;
 	}
 	protected void updateMemoryStats (){
 		memUsed = ( Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() ) / 1048576;
@@ -237,47 +238,28 @@ public class LagMeter extends JavaPlugin {
 	}
 	public void crap(String message){
 		PluginDescriptionFile pdfFile = this.getDescription();
-//		log.severe("[" + pdfFile.getName()+ " " + pdfFile.getVersion() + "] " + message);
 		log.info("[" + pdfFile.getName()+ " " + pdfFile.getVersion() + "] " + message);
 	}
 	public void warnMessage(String message){
 		PluginDescriptionFile pdfFile = this.getDescription();
 		log.warning("[" + pdfFile.getName() + " " + pdfFile.getVersion() + "] " + message);
 	}
-	
-	public void loadConfig() {
-		File configFile = new File(this.getDataFolder(),"settings.yml");
-		File configDir = this.getDataFolder();
-		Configuration config = new Configuration(configFile);
-		
-		config.load();
-		
-		// Loading
-		interval 				= config.getInt		("interval",				interval);
-		useAverage 				= config.getBoolean	("useAverage",				useAverage);
-		averageLength 			= config.getInt		("averageLength",			averageLength);
-		enableLogging 			= config.getBoolean	("log.enable",				enableLogging);
-		logInterval				= config.getInt		("log.interval",			logInterval);
-		playerLoggingEnabled	= config.getBoolean	("log.logPlayersOnline",	true);
-		
-		// Sanity check
-		if (interval < 20){
-			this.warnMessage("An interval under 20 was configured. This is a bad idea!");
-		}
-		if (averageLength > 100){
-			this.warnMessage("You've specified an average of over 100 samples. This will tell you roughly nothing!");
-		}
-		if (!configFile.exists()){
-			if (!configDir.exists()){
-				configDir.mkdir();
-			}
-			try {
-				configFile.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-				this.crap("IOError while creating config file: "+e.getMessage());
-			}
-		}
-		config.save();  // Saving regardless, because I want new settings to be written to it after updating etc.
+	public void severeMessage(String message){
+		PluginDescriptionFile pdfFile = this.getDescription();
+		log.severe(pdfFile.getName() + "" + pdfFile.getVersion() + "] " + message);
+	}
+	public static String getVersion(){
+		return pdfFile.getVersion();
+	}
+	/**
+	 * Gets the ticks per second.
+	 * 
+	 * @since 1.8-pre
+	 * @return ticksPerSecond
+	 */
+	public float getTPS(){
+		if(useAverage)
+			return history.getAverage();
+		return ticksPerSecond;
 	}
 }
