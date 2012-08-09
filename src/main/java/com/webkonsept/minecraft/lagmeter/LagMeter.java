@@ -17,10 +17,12 @@ import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
 public class LagMeter extends JavaPlugin {
+	private static final String fileSeparator = System.getProperty("file.separator");
+	
 	private Logger log = Logger.getLogger("Minecraft");
 	protected float ticksPerSecond = 20;
 	public static PluginDescriptionFile pdfFile;
-	protected File logsFolder = new File(this.getDataFolder()+"\\logs");
+	protected File logsFolder = new File(this.getDataFolder()+fileSeparator+"logs");
 	
 	protected LagMeterLogger logger = new LagMeterLogger(this);
 	protected LagMeterPoller poller = new LagMeterPoller(this);

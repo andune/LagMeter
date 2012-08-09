@@ -9,6 +9,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class LagMeterLogger {
+	private static final String fileSeparator = System.getProperty("file.separator");
+
 	static LagMeter plugin;
 	
 	private String error = "*shrug* Dunno.";
@@ -43,7 +45,7 @@ public class LagMeterLogger {
 			return this.enable(new File(plugin.getDataFolder(),"lag.log"));
 		}else{
 			System.out.println("[LagMeter] Using logs folder. This will create a new log for each day (it might log data from tomorrow in today's file if you leave the server running without reloading/restarting).");
-			return this.enable(new File(plugin.getDataFolder()+"\\logs", "lag"+today()+".log"));
+			return this.enable(new File(plugin.getDataFolder()+fileSeparator+"logs", "lag"+today()+".log"));
 		}
 	}
 	public boolean enabled(){
