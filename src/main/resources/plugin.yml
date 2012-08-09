@@ -1,6 +1,7 @@
-name: LagMeter
+name: ${project.name}
+url: ${project.url}
+version: ${project.version}
 main: com.webkonsept.minecraft.lagmeter.LagMeter
-version: 1.9
 branch: stable
 #website: http://minecraft.webkonsept.com/plugins/details/LagMeter.jar - No longer applies, new developer. Site no longer used.
 #location: http://minecraft.webkonsept.com/plugins/download/LagMeter.jar - No longer applies, new developer. Site no longer used.
