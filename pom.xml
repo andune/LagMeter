@@ -8,6 +8,7 @@
   <version>1.10-SNAPSHOT</version>
   <name>LagMeter</name>
   <description>LagMeter</description>
+  <url>http://dev.bukkit.org/server-mods/lagmeter/</url>
 
   <repositories>
     <repository>
