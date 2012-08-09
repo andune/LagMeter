@@ -132,7 +132,10 @@ public class LagMeterLogger {
 		}
 		else {
 			try {
-				if (! logfile.exists()){
+				if( !logfile.exists() ) {
+					File path = new File(logfile.getParent());
+					if( !path.exists() )
+						path.mkdirs();
 					logfile.createNewFile();
 				}
 				log = new PrintWriter(new FileWriter(logfile,true));
